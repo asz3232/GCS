@@ -8,7 +8,7 @@ public class FirstPersonController : MonoBehaviour
     [Header("이동 설정")]
     [SerializeField] private float walkSpeed = 4f;
     [SerializeField] private float runSpeed = 7f;
-    [SerializeField] private float jumpHeight = 1.2f;
+    //[SerializeField] private float jumpHeight = 1.2f;
     [SerializeField] private float gravity = -9.81f;
 
     [Header("시점 회전 설정")]
@@ -21,6 +21,7 @@ public class FirstPersonController : MonoBehaviour
     private Vector3 velocity;
     private float verticalLookRotation;
     private bool cursorLocked = true;
+    private bool gameplayInputEnabled = true; // 인벤토리 등 UI가 열리면 false로 전환
 
     private void Awake()
     {
@@ -34,9 +35,19 @@ public class FirstPersonController : MonoBehaviour
 
     private void Update()
     {
+        if (!gameplayInputEnabled) return; // 인벤토리 등 UI가 열려있으면 조작 무시
+
         HandleCursorToggle();
         HandleMouseLook();
         HandleMovement();
+    }
+
+    // 인벤토리 같은 UI가 열리고 닫힐 때 외부(InventoryUI 등)에서 호출합니다.
+    // false를 주면 커서가 풀리고 시점 회전/이동이 멈춥니다.
+    public void SetGameplayInputEnabled(bool enabled)
+    {
+        gameplayInputEnabled = enabled;
+        SetCursorLock(enabled);
     }
 
     private void HandleCursorToggle()
@@ -108,13 +119,13 @@ public class FirstPersonController : MonoBehaviour
         bool isRunning = keyboard.leftShiftKey.isPressed;
         float currentSpeed = isRunning ? runSpeed : walkSpeed;
         controller.Move(move * currentSpeed * Time.deltaTime);
-
+        /*
         // 점프
         if (keyboard.spaceKey.wasPressedThisFrame && isGrounded)
         {
             velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
         }
-
+        */
         // 중력 적용
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);

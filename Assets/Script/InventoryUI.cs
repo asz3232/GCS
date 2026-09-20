@@ -9,6 +9,8 @@ public class InventoryUI : MonoBehaviour
     [Header("연결")]
     [SerializeField] private InventorySlotUI slotPrefab;
     [SerializeField] private Transform slotParent; // Grid Layout Group이 붙은 오브젝트
+    [SerializeField] private ItemDetailPanel detailPanel;// 클릭 시 설명을 보여줄 패널
+    [SerializeField] private FirstPersonController playerController; // 인벤토리 열릴 때 조작/커서 잠금 해제용
 
     [Header("옵션")]
     [SerializeField] private bool hideOnStartIfClosed = false;
@@ -90,15 +92,17 @@ public class InventoryUI : MonoBehaviour
     }
 
 
-    
+    /// 슬롯 클릭 시 InventorySlotUI에서 호출됩니다.
+    /// 아이템이 있으면 상세 정보 패널(아이콘/이름/설명)을 띄웁니다.
     public void OnSlotClicked(int slotIndex)
     {
         Item item = InventoryManager.Instance.GetItemAt(slotIndex);
         if (item == null) return;
 
-        Debug.Log($"슬롯 {slotIndex} 클릭: {item.itemName}");
-        // 예시: 클릭하면 사용(제거)
-        // InventoryManager.Instance.RemoveItemAt(slotIndex);
+        if (detailPanel != null)
+        {
+            detailPanel.Show(item);
+        }
     }
 
     public void SetOpen(bool open)
@@ -108,5 +112,13 @@ public class InventoryUI : MonoBehaviour
         {
             panelRoot.SetActive(open);
         }
+
+        // 인벤토리가 열리면 플레이어 조작/커서 잠금을 끄고, 닫히면 다시 켭니다.
+        if (playerController != null)
+        {
+            playerController.SetGameplayInputEnabled(!open);
+        }
     }
+
+
 }
